@@ -11,10 +11,10 @@ sudo apt install docker-compose python3
 git clone https://github.com/graffwinterfield/FastAPI_register_service.git
 cd FastAPI_register_service/
 pip install -r requirments.txt
+docker-compose up -d
 </pre>
 # start
 <pre>
-docker-compose up -d
 python3 main.py
 </pre>
 ![image](https://github.com/graffwinterfield/FastAPI_register_service/assets/110451740/878aa8af-a6fd-46b9-ab86-1aa7cafdb92d)
