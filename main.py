@@ -9,7 +9,7 @@ app = FastAPI()
 app.include_router(routes.router, tags=['create notification'], prefix='/api/note')
 
 
-@app.get("/api/healthchecker")
+@app.get("/api/main")
 def root():
     return {"message": "Welcome to FastAPI with SQLAlchemy"}
 
