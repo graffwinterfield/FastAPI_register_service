@@ -1,16 +1,27 @@
 import datetime
+import time
+
 from models import Note
 from sqlalchemy.orm import Session
 from fastapi import Depends, status, APIRouter, Query, Body, HTTPException
 from database import get_db
 from functions import Mail, save_to_db
+
 mail = Mail()
 router = APIRouter()
-server = mail.connect_to_mail_and_send_email()
-MAX_NOTIFICATIONS = 10
+MAX_NOTIFICATIONS = 100
+server = mail.connect_to_mail()
+
+
 @router.post('/create', status_code=status.HTTP_201_CREATED)
 def create_note(db: Session = Depends(get_db), user_id: str = Query(...), target_id: str = Query(...),
                 key: str = Query(...), data: dict = Body(None)):
+    global server
+    success = mail.check_conn(server=server)
+    while success is not True:
+        server = mail.connect_to_mail()
+        success = mail.check_conn(server=server)
+        time.sleep(2)
     user_notifications = db.query(Note).filter(Note.user_id == user_id).all()
     if len(user_notifications) >= MAX_NOTIFICATIONS:
         raise HTTPException(status_code=400, detail="Max number of notifications reached")

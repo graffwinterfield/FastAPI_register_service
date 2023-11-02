@@ -5,27 +5,43 @@ from config import settings
 
 
 class Mail:
-    def connect_to_mail_and_send_email(self):
+    @staticmethod
+    def check_conn(server):
+        try:
+            status = server.noop()[0]
+            print(status)
+        except Exception as e:
+            print(e)
+            status = -1
+        return True if status == 250 else False
+
+    @staticmethod
+    def connect_to_mail():
         password = settings.SMTP_PASSWORD
         email_from = settings.SMTP_LOGIN
-        print(password, email_from)
         smtp_host = settings.SMTP_HOST
         smtp_port = settings.SMTP_PORT
-        server = smtplib.SMTP(f'{smtp_host}: {smtp_port}')
-        server.ehlo()
-        server.starttls()
-        server.login(email_from, password)
+        try:
+            server = smtplib.SMTP(f'{smtp_host}: {smtp_port}')
+            server.ehlo()
+            server.starttls()
+            server.login(email_from, password)
+            return server
+        except smtplib.SMTPServerDisconnected:
+            return 'Error disconnect'
+        except Exception as e:
+            print(f"Error connecting to SMTP server: {e}")
 
-        return server
-
-    def send_email(self, server, text):
-        msg = MIMEMultipart()  # Создаем сообщение
-        msg['From'] = settings.SMTP_EMAIL  # Адресат
-        msg['To'] = settings.EMAIL  # Получатель
-        msg['Subject'] = 'Тема сообщения'  # Тема сообщения
-        msg.attach(MIMEText(text, 'plain'))  # Добавляем в сообщение текст
+    @staticmethod
+    def send_email(server, text):
+        msg = MIMEMultipart()
+        msg['From'] = settings.SMTP_EMAIL
+        msg['To'] = settings.EMAIL
+        msg['Subject'] = 'API_service'
+        msg.attach(MIMEText(text, 'plain'))
         server.send_message(msg)
         return server
+
 
 def save_to_db(data, db):
     db.add(data)
